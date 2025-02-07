@@ -76,6 +76,8 @@
       padding: 20px;
       overflow-y: auto;
       background: #e9ecef;
+      display: flex;
+      flex-direction: column;
     }
     .chat-bubble {
       margin: 10px 0;
@@ -92,6 +94,17 @@
       background: #fff;
       border: 1px solid #ccc;
       align-self: flex-start;
+    }
+    .chat-bubble.system {
+      background: #f8f9fa;
+      align-self: center;
+      font-size: 14px;
+      color: #666;
+    }
+    .typing-indicator {
+      display: none;
+      font-style: italic;
+      color: #777;
     }
     footer {
       padding: 10px 20px;
@@ -138,26 +151,26 @@
         <button class="upload-btn" onclick="document.getElementById('fileInput').click()">&#43;</button>
         <input type="file" id="fileInput" style="display:none" accept=".pdf,.docx,.txt" onchange="uploadFile(event)">
       </header>
-      <div id="chatContainer"></div>
+      <div id="chatContainer">
+        <div id="typingIndicator" class="typing-indicator">Bot is typing...</div>
+      </div>
       <footer>
-        <input type="text" id="questionInput" placeholder="Type your question here...">
+        <input type="text" id="questionInput" placeholder="Type your question here..." onkeypress="handleKeyPress(event)">
         <button onclick="submitQuestion()">Send</button>
       </footer>
     </div>
   </div>
+  
   <script>
-    // Add chat bubble to chat container
     function addChatBubble(message, sender) {
       const container = document.getElementById('chatContainer');
       const bubble = document.createElement('div');
-      bubble.classList.add('chat-bubble');
-      bubble.classList.add(sender);
+      bubble.classList.add('chat-bubble', sender);
       bubble.innerText = message;
       container.appendChild(bubble);
       container.scrollTop = container.scrollHeight;
     }
-    
-    // Upload file triggered by plus sign
+
     async function uploadFile(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -166,11 +179,10 @@
       
       const response = await fetch('/upload', { method: 'POST', body: formData });
       const data = await response.json();
-      alert(data.message); // pop-up confirmation
+      alert(data.message);
       addChatBubble("Uploaded file: " + file.name, "system");
     }
-    
-    // Submit question from footer input
+
     async function submitQuestion() {
       const input = document.getElementById('questionInput');
       const question = input.value.trim();
@@ -178,19 +190,55 @@
         alert("Please enter a question.");
         return;
       }
+      
       addChatBubble(question, "user");
       input.value = "";
-      
-      const response = await fetch('/ask', {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question })
-      });
-      const data = await response.json();
-      addChatBubble(data.answer, "bot");
+
+      // Show typing indicator
+      document.getElementById("typingIndicator").style.display = "block";
+
+      try {
+        const response = await fetch('/ask', {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: question })
+        });
+
+        if (!response.ok) {
+          throw new Error("Server error, please try again later.");
+        }
+
+        // Process the streamed response
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let botBubble = document.createElement('div');
+        botBubble.classList.add('chat-bubble', 'bot');
+        document.getElementById('chatContainer').appendChild(botBubble);
+
+        let completeMessage = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          let chunk = decoder.decode(value, { stream: true });
+          completeMessage += chunk;
+          botBubble.innerText = completeMessage;
+          document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+        }
+
+      } catch (error) {
+        alert("Error: " + error.message);
+      } finally {
+        // Hide typing indicator
+        document.getElementById("typingIndicator").style.display = "none";
+      }
     }
-    
-    // End session (clears session-specific data)
+
+    function handleKeyPress(event) {
+      if (event.key === "Enter") {
+        submitQuestion();
+      }
+    }
+
     async function endSession() {
       const response = await fetch('/end_session', { method: 'POST' });
       const data = await response.json();
