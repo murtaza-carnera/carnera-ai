@@ -37,7 +37,7 @@ interface SidebarContent extends PropsWithChildren {
 }
 
 function SidebarContent(props: SidebarContent) {
-  const { routes, setApiKey } = props;
+  const { routes } = props;
   const textColor = useColorModeValue('navy.700', 'white');
   const borderColor = useColorModeValue('gray.200', 'whiteAlpha.300');
   const bgColor = useColorModeValue('white', 'navy.700');
@@ -68,7 +68,7 @@ function SidebarContent(props: SidebarContent) {
           <Links routes={routes} />
         </Box>
       </Stack>
-      <APIModal setApiKey={setApiKey} sidebar={true} />
+      <APIModal sidebar={true} />
       <Flex
         mt="8px"
         justifyContent="center"

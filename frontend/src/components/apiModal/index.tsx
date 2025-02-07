@@ -28,8 +28,8 @@ import {
 import { useState } from 'react';
 import { MdLock } from 'react-icons/md';
 
-function APIModal(props: { setApiKey: any; sidebar?: boolean }) {
-  const { setApiKey, sidebar } = props;
+function APIModal(props: { sidebar?: boolean }) {
+  const { sidebar } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [inputCode, setInputCode] = useState<string>('');
 
@@ -45,41 +45,8 @@ function APIModal(props: { setApiKey: any; sidebar?: boolean }) {
     setInputCode(Event.target.value);
   };
 
-  const handleApiKeyChange = (value: string) => {
-    setApiKey(value);
-
-    localStorage.setItem('apiKey', value);
-  };
   return (
     <>
-      {sidebar ? (
-        <Button
-          onClick={onOpen}
-          display="flex"
-          variant="api"
-          fontSize={'sm'}
-          fontWeight="600"
-          borderRadius={'45px'}
-          mt="8px"
-          minH="40px"
-        >
-          Set API Key
-        </Button>
-      ) : (
-        <Button
-          onClick={onOpen}
-          minW="max-content !important"
-          p="0px"
-          me="10px"
-          _hover={{ bg: 'none' }}
-          _focus={{ bg: 'none' }}
-          _selected={{ bg: 'none' }}
-          bg="none !important"
-        >
-          <Icon w="18px" h="18px" as={MdLock} color={navbarIcon} />
-        </Button>
-      )}
-
       <Modal blockScrollOnMount={false} isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent bg="none" boxShadow="none">
@@ -123,41 +90,6 @@ function APIModal(props: { setApiKey: any; sidebar?: boolean }) {
                   onChange={handleChange}
                   value={inputCode}
                 />
-                <Button
-                  variant="chakraLinear"
-                  py="20px"
-                  px="16px"
-                  fontSize="sm"
-                  borderRadius="45px"
-                  ms="auto"
-                  mb={{ base: '20px', md: '0px' }}
-                  w={{ base: '300px', md: '180px' }}
-                  h="54px"
-                  onClick={() => {
-                    inputCode?.includes('sk-')
-                      ? handleApiKeyChange(inputCode)
-                      : null;
-                    if (inputCode)
-                      toast({
-                        title: inputCode?.includes('sk-')
-                          ? `Success! You have successfully added your API key!`
-                          : !inputCode?.includes('sk-')
-                          ? `Invalid API key. Please make sure your API key is still working properly.`
-                          : 'Please add your API key!',
-                        position: 'top',
-                        status: inputCode?.includes('sk-')
-                          ? 'success'
-                          : !inputCode?.includes('sk-')
-                          ? `error`
-                          : !inputCode
-                          ? 'warning'
-                          : 'error',
-                        isClosable: true,
-                      });
-                  }}
-                >
-                  Save API Key
-                </Button>
               </Flex>
               <Link
                 color={link}
