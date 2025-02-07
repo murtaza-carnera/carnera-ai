@@ -24,7 +24,7 @@ app.secret_key = os.getenv("SECRET_KEY")  # e.g., "supersecretkey"
 logging.basicConfig(filename="app.log", level=logging.INFO)
 
 # OpenRouter DeepSeek R1 API Settings (using OpenAI's compatible interface)
-openrouter_api_key = os.getenv("DEEPEEK_API_KEY")
+openrouter_api_key = os.getenv("DEEPSEEK_API_KEY")
 openai.api_base = "https://openrouter.ai/api/v1"
 openai.api_key = openrouter_api_key
 DEEPEEK_MODEL = "deepseek/deepseek-r1:free"
@@ -221,9 +221,11 @@ def ask_question():
     if not combined_context:
         combined_context = internet_search(question)
         logging.info("Using internet search fallback for context.")
+#         Answer the question based solely on the provided context.
+# If you don't know the answer, say you don't know.
 
-    prompt = f"""Answer the question based solely on the provided context.
-If you don't know the answer, say you don't know.
+    prompt = f"""Check with the document provided first. If not found in given document, search the internet. and also specify that this is general information form the internet.
+    
 
 Context:
 {combined_context}
