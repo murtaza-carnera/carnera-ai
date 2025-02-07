@@ -1,1 +1,7 @@
-.env/
+.env
+venv/
+global_docs/
+global_chroma/
+temp_chroma/
+.DS_Store
+app.log
