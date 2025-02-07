@@ -1,10 +1,11 @@
 import { ai } from "@/services/lang";
 import { NextRequest } from "next/server";
 
-const carneraAi = ai();
+
 
 export async function GET(request: NextRequest): Promise<Response> {
   try {
+    const carneraAi = ai();
     const { searchParams } = new URL(request.url);
     let inputs = { question: searchParams.get('question')?.toString() };
 
@@ -29,3 +30,5 @@ export async function GET(request: NextRequest): Promise<Response> {
     return new Response('Error', { status: 500 });
   }
 }
+
+

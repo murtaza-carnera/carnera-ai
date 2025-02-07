@@ -20,6 +20,7 @@ import {
 import { useEffect, useState } from 'react';
 import { MdAutoAwesome, MdBolt, MdEdit, MdPerson } from 'react-icons/md';
 import Bg from '../public/img/chat/bg-image.png';
+import FileUpload from '@/components/fileUpload/FileUpload';
 
 export default function Chat(props: { apiKeyApp: string }) {
   // Input States
@@ -320,6 +321,10 @@ export default function Chat(props: { apiKeyApp: string }) {
           </Button>
         </Flex>
       </Flex>
+
+      <FileUpload />
     </Flex>
+
+
   );
 }
