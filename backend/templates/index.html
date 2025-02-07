@@ -1,92 +1,202 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Upload and Question Answering</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG Chat Interface</title>
+  <style>
+    * { box-sizing: border-box; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      height: 100%;
+      background: #f5f5f5;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    /* Sidebar */
+    #sidebar {
+      width: 250px;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #sidebar h3 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    #sidebar li {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+    #sidebar button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background: #007BFF;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    /* Main Chat Area */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #007BFF;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    header .upload-btn {
+      font-size: 28px;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+    }
+    #chatContainer {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: #e9ecef;
+    }
+    .chat-bubble {
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 15px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+    .chat-bubble.user {
+      background: #dcf8c6;
+      align-self: flex-end;
+    }
+    .chat-bubble.bot {
+      background: #fff;
+      border: 1px solid #ccc;
+      align-self: flex-start;
+    }
+    footer {
+      padding: 10px 20px;
+      background: #fff;
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+    footer input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    footer button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <h1>Upload Document and Ask Questions</h1>
-
-    <!-- Document Upload Section -->
-    <h2>Upload Document</h2>
-    <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" id="fileInput" name="file" accept=".pdf,.docx,.txt" required>
-        <button type="submit">Upload</button>
-    </form>
-    <p id="uploadMessage" style="color: green; display: none;"></p>
-
-    <!-- End Session Button -->
-    <button onclick="endSession()">End Session</button>
-
-    <!-- Question Asking Section -->
-    <h2>Ask a Question</h2>
-    <textarea id="questionBox" rows="4" cols="50" placeholder="Type your question here" required></textarea><br>
-    <button onclick="submitQuestion()">Submit Question</button>
-
-    <!-- Answer Display Section -->
-    <div id="answerSection" style="display: none;">
-        <h3>Question:</h3>
-        <p id="displayQuestion"></p>
-        <p><strong>Answer:</strong> <span id="displayAnswer"></span></p>
+  <div class="container">
+    <!-- Sidebar for preloaded documents -->
+    <div id="sidebar">
+      <h3>Preloaded Documents</h3>
+      <ul>
+        {% for file in preloaded_files %}
+        <li>{{ file }}</li>
+        {% endfor %}
+      </ul>
+      <button onclick="endSession()">End Session</button>
     </div>
-
-    <script>
-        // Handle document upload
-        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            const formData = new FormData();
-            const fileInput = document.getElementById('fileInput');
-            formData.append("file", fileInput.files[0]);
-
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                document.getElementById('uploadMessage').innerText = data.message;
-                document.getElementById('uploadMessage').style.display = 'block';
-            } else {
-                document.getElementById('uploadMessage').innerText = data.error;
-                document.getElementById('uploadMessage').style.color = 'red';
-                document.getElementById('uploadMessage').style.display = 'block';
-            }
-        });
-
-        // Handle question submission
-        async function submitQuestion() {
-            const question = document.getElementById('questionBox').value;
-            if (!question) {
-                alert('Please enter a question.');
-                return;
-            }
-
-            const response = await fetch('/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: question }),
-            });
-
-            const data = await response.json();
-            document.getElementById('displayQuestion').innerText = question;
-            document.getElementById('displayAnswer').innerText = data.answer;
-            document.getElementById('answerSection').style.display = 'block';
-        }
-
-        // Handle session termination
-        async function endSession() {
-        const response = await fetch('/end_session', { method: 'POST' });
-        const data = await response.json();
-        alert(data.message);
-        
-        // Clear cookies & force full page reload to reset session
-        document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.location.href = "/";  // Hard reload to reset session state
-
-        }
-    </script>
+    <!-- Main chat interface -->
+    <div id="main">
+      <header>
+        <h1>Ask a Question</h1>
+        <!-- Plus sign triggers hidden file input for upload -->
+        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">&#43;</button>
+        <input type="file" id="fileInput" style="display:none" accept=".pdf,.docx,.txt" onchange="uploadFile(event)">
+      </header>
+      <div id="chatContainer"></div>
+      <footer>
+        <input type="text" id="questionInput" placeholder="Type your question here...">
+        <button onclick="submitQuestion()">Send</button>
+      </footer>
+    </div>
+  </div>
+  <script>
+    // Add chat bubble to chat container
+    function addChatBubble(message, sender) {
+      const container = document.getElementById('chatContainer');
+      const bubble = document.createElement('div');
+      bubble.classList.add('chat-bubble');
+      bubble.classList.add(sender);
+      bubble.innerText = message;
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    // Upload file triggered by plus sign
+    async function uploadFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      const response = await fetch('/upload', { method: 'POST', body: formData });
+      const data = await response.json();
+      alert(data.message); // pop-up confirmation
+      addChatBubble("Uploaded file: " + file.name, "system");
+    }
+    
+    // Submit question from footer input
+    async function submitQuestion() {
+      const input = document.getElementById('questionInput');
+      const question = input.value.trim();
+      if (!question) {
+        alert("Please enter a question.");
+        return;
+      }
+      addChatBubble(question, "user");
+      input.value = "";
+      
+      const response = await fetch('/ask', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: question })
+      });
+      const data = await response.json();
+      addChatBubble(data.answer, "bot");
+    }
+    
+    // End session (clears session-specific data)
+    async function endSession() {
+      const response = await fetch('/end_session', { method: 'POST' });
+      const data = await response.json();
+      alert(data.message);
+      location.reload();
+    }
+  </script>
 </body>
 </html>
