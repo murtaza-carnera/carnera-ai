@@ -1,0 +1,10 @@
+Flask
+langchain
+langchain_chroma
+langchain_community
+requests
+PyPDF2
+python-docx
+werkzeug
+uuid
+logging

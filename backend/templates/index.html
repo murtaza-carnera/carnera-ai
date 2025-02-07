@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Upload and Question Answering</title>
+</head>
+<body>
+    <h1>Upload Document and Ask Questions</h1>
+
+    <!-- Document Upload Section -->
+    <h2>Upload Document</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="file" accept=".pdf,.docx,.txt" required>
+        <button type="submit">Upload</button>
+    </form>
+    <p id="uploadMessage" style="color: green; display: none;"></p>
+
+    <!-- End Session Button -->
+    <button onclick="endSession()">End Session</button>
+
+    <!-- Question Asking Section -->
+    <h2>Ask a Question</h2>
+    <textarea id="questionBox" rows="4" cols="50" placeholder="Type your question here" required></textarea><br>
+    <button onclick="submitQuestion()">Submit Question</button>
+
+    <!-- Answer Display Section -->
+    <div id="answerSection" style="display: none;">
+        <h3>Question:</h3>
+        <p id="displayQuestion"></p>
+        <p><strong>Answer:</strong> <span id="displayAnswer"></span></p>
+    </div>
+
+    <script>
+        // Handle document upload
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileInput');
+            formData.append("file", fileInput.files[0]);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('uploadMessage').innerText = data.message;
+                document.getElementById('uploadMessage').style.display = 'block';
+            } else {
+                document.getElementById('uploadMessage').innerText = data.error;
+                document.getElementById('uploadMessage').style.color = 'red';
+                document.getElementById('uploadMessage').style.display = 'block';
+            }
+        });
+
+        // Handle question submission
+        async function submitQuestion() {
+            const question = document.getElementById('questionBox').value;
+            if (!question) {
+                alert('Please enter a question.');
+                return;
+            }
+
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question }),
+            });
+
+            const data = await response.json();
+            document.getElementById('displayQuestion').innerText = question;
+            document.getElementById('displayAnswer').innerText = data.answer;
+            document.getElementById('answerSection').style.display = 'block';
+        }
+
+        // Handle session termination
+        async function endSession() {
+        const response = await fetch('/end_session', { method: 'POST' });
+        const data = await response.json();
+        alert(data.message);
+        
+        // Clear cookies & force full page reload to reset session
+        document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.location.href = "/";  // Hard reload to reset session state
+
+        }
+    </script>
+</body>
+</html>
