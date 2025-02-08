@@ -109,7 +109,7 @@ export default function AdminNavbar(props: {
         mb={gap}
       >
         <Box mb={{ base: '8px', md: '0px' }}>
-          <Breadcrumb>
+          {/* <Breadcrumb>
             <BreadcrumbItem color={secondaryText} fontSize="sm" mb="5px">
               <BreadcrumbLink href="#" color={secondaryText}>
                 Pages
@@ -121,7 +121,7 @@ export default function AdminNavbar(props: {
                 {brandText}
               </BreadcrumbLink>
             </BreadcrumbItem>
-          </Breadcrumb>
+          </Breadcrumb> */}
           {/* Here we create navbar brand, based on route name */}
           <Link
             color={mainText}

@@ -176,7 +176,7 @@ export default function Chat(props: { apiKeyApp: string }) {
           >
           </Flex>
 
-          <Accordion color={gray} allowToggle w="100%" my="0px" mx="auto">
+          {/* <Accordion color={gray} allowToggle w="100%" my="0px" mx="auto">
             <AccordionItem border="none">
               <AccordionButton
                 borderBottom="0px solid"
@@ -198,7 +198,7 @@ export default function Chat(props: { apiKeyApp: string }) {
                 </Text>
               </AccordionPanel>
             </AccordionItem>
-          </Accordion>
+          </Accordion> */}
         </Flex>
         {/* Main Box */}
         <Flex
@@ -315,14 +315,14 @@ export default function Chat(props: { apiKeyApp: string }) {
               },
             }}
             onClick={handleTranslate}
-            isLoading={loading ? true : false}
+            isLoading={loading}
           >
             Submit
           </Button>
         </Flex>
       </Flex>
 
-      <FileUpload />
+      {/* <FileUpload /> */}
     </Flex>
 
 

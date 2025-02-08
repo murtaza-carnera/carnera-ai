@@ -37,10 +37,10 @@ export default function Footer() {
         {' '}
         &copy; {new Date().getFullYear()}
         <Text as="span" fontWeight="500" ms="4px">
-          Horizon UI AI Template. All Rights Reserved.
+          Carnera AI. All Rights Reserved.
         </Text>
       </Text>
-      <List display="flex">
+      {/* <List display="flex">
         <ListItem
           me={{
             base: '10px',
@@ -96,7 +96,7 @@ export default function Footer() {
             Privacy Policy
           </Link>
         </ListItem>
-      </List>
+      </List> */}
     </Flex>
   );
 }

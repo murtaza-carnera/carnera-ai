@@ -69,7 +69,7 @@ function SidebarContent(props: SidebarContent) {
         </Box>
       </Stack>
       <APIModal sidebar={true} />
-      <Flex
+      {/* <Flex
         mt="8px"
         justifyContent="center"
         alignItems="center"
@@ -269,7 +269,7 @@ function SidebarContent(props: SidebarContent) {
         >
           <Icon as={FiLogOut} width="16px" height="16px" color="inherit" />
         </Button>
-      </Flex>
+      </Flex> */}
     </Flex>
   );
 }
