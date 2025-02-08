@@ -17,6 +17,7 @@ import Bg from '../public/img/chat/bg-image.png';
 
 export default function Chat(props: { apiKeyApp: string }) {
   const [inputCode, setInputCode] = useState<string>('');
+  const [threadId, setThreadId] = useState<string>('');
   const [chatHistory, setChatHistory] = useState<
     { user: string; bot: string }[]
   >([]);
@@ -34,47 +35,100 @@ export default function Chat(props: { apiKeyApp: string }) {
     }
   };
 
+  // const handleTranslate = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   if (!inputCode.trim() && !file) {
+  //     alert('Please enter a message or upload a file.');
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   const query = inputCode;
+
+  //   try {
+  //     const q = { prompt: query, thread_id: threadId || undefined }
+  //     const response = await fetch(`./api/langApi`, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(q),
+  //     });
+
+  //     if (!response.ok) {
+  //       alert('Something went wrong. Try again.');
+  //       setLoading(false);
+  //       return;
+  //     }
+
+  //     const data = response.body;
+  //     if (!data) {
+  //       alert('No response from the server.');
+  //       setLoading(false);
+  //       return;
+  //     }
+
+  //     if(data.thread_id) {
+  //       setThreadId(data.thread_id);
+  //     }
+
+  //     const reader = data.getReader();
+  //     const decoder = new TextDecoder();
+  //     let outputCode = '';
+  //     let done = false;
+
+  //     while (!done) {
+  //       const { value, done: doneReading } = await reader.read();
+  //       done = doneReading;
+  //       outputCode += decoder.decode(value);
+  //     }
+
+  //     setChatHistory((prev) => [...prev, { user: inputCode, bot: outputCode }]);
+  //     setInputCode('');
+  //     setFile(null);
+  //   } catch (error) {
+  //     alert('Error processing request.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleTranslate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     if (!inputCode.trim() && !file) {
       alert('Please enter a message or upload a file.');
       return;
     }
-
+  
     setLoading(true);
     const query = inputCode;
-
+  
     try {
-      const response = await fetch(`./api/langApi?question=${query}`, {
-        method: 'GET',
+      const q = { prompt: query, thread_id: threadId || undefined };
+      const response = await fetch(`./api/assistant`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(q),
       });
-
+  
       if (!response.ok) {
         alert('Something went wrong. Try again.');
         setLoading(false);
         return;
       }
-
-      const data = response.body;
-      if (!data) {
-        alert('No response from the server.');
-        setLoading(false);
-        return;
+  
+      // Parse JSON response directly
+      const data = await response.json();
+  
+      if (data.thread_id) {
+        setThreadId(data.thread_id);
       }
-
-      const reader = data.getReader();
-      const decoder = new TextDecoder();
-      let outputCode = '';
-      let done = false;
-
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        outputCode += decoder.decode(value);
+  
+      if (data.message) {
+        setChatHistory((prev) => [...prev, { user: inputCode, bot: data.message }]);
+      } else {
+        alert('Invalid response format.');
       }
-
-      setChatHistory((prev) => [...prev, { user: inputCode, bot: outputCode }]);
+  
       setInputCode('');
       setFile(null);
     } catch (error) {
@@ -83,7 +137,7 @@ export default function Chat(props: { apiKeyApp: string }) {
       setLoading(false);
     }
   };
-
+  
   return (
     <Flex
       w="100%"
