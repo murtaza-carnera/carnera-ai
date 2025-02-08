@@ -62,7 +62,7 @@ function SidebarContent(props: SidebarContent) {
       maxW="285px"
       px="20px"
     >
-      <Brand />
+      {/* <Brand /> */}
       <Stack direction="column" mb="auto" mt="8px">
         <Box ps="0px" pe={{ md: '0px', '2xl': '0px' }}>
           <Links routes={routes} />
