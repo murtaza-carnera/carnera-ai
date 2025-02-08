@@ -55,7 +55,7 @@ const retrieveQA = async (state: typeof StateAnnotationQA.State) => {
   const filter = (doc: any) => doc.metadata.section === state.search.section;
   const retrievedDocs = await vectorStore.similaritySearch(
     state.search.query,
-    2,
+    5,
     filter
   );
   return { context: retrievedDocs };
@@ -87,21 +87,33 @@ const generateQA = async (state: typeof StateAnnotationQA.State) => {
 export async function loadAndProcessDocuments() {
   console.log('Loading and processing documents...');
 
-  const loader = new S3Loader({
-    bucket: process.env.CARNERAAI_AWS_S3_BUCKET_NAME!,
-    key: 'b27ec1e2-3d81-4517-bf50-1584706663aa.Carnera Profile - Harsh Tenguriya.docx',
-    s3Config: {
-      region: process.env.CARNERAAI_AWS_REGION!,
-      credentials: {
-        accessKeyId: process.env.CARNERAAI_AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.CARNERAAI_AWS_SECRET_ACCESS_KEY!,
-      },
-    },
-    unstructuredAPIURL: process.env.CARNERAAI_UNSTRUCTURED_API_URL!,
-    unstructuredAPIKey: process.env.CARNERAAI_UNSTRUCTURED_API_KEY!,
-  });
+  // const loader = new S3Loader({
+  //   bucket: process.env.CARNERAAI_AWS_S3_BUCKET_NAME!,
+  //   key: 'b27ec1e2-3d81-4517-bf50-1584706663aa.Carnera Profile - Harsh Tenguriya.docx',
+  //   s3Config: {
+  //     region: process.env.CARNERAAI_AWS_REGION!,
+  //     credentials: {
+  //       accessKeyId: process.env.CARNERAAI_AWS_ACCESS_KEY_ID!,
+  //       secretAccessKey: process.env.CARNERAAI_AWS_SECRET_ACCESS_KEY!,
+  //     },
+  //   },
+  //   unstructuredAPIURL: process.env.CARNERAAI_UNSTRUCTURED_API_URL!,
+  //   unstructuredAPIKey: process.env.CARNERAAI_UNSTRUCTURED_API_KEY!,
+  // });
 
-  const docs = await loader.load();
+  // const docs = await loader.load();
+
+  const pTagSelector = "p";
+const cheerioLoader = new CheerioWebBaseLoader(
+  "https://lilianweng.github.io/posts/2023-06-23-agent/",
+  {
+    selector: pTagSelector
+  }
+);
+
+const docs = await cheerioLoader.load();
+console.log(docs);
+
 
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 1000,
