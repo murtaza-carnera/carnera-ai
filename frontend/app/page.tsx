@@ -1,7 +1,6 @@
 'use client';
 /*eslint-disable*/
 import MessageBoxChat from '@/components/MessageBox';
-import { ChatBody } from '@/types/types';
 import {
   Button,
   Flex,
@@ -15,7 +14,7 @@ import { useState } from 'react';
 import { MdAutoAwesome, MdPerson, MdAttachFile } from 'react-icons/md';
 import Bg from '../public/img/chat/bg-image.png';
 
-export default function Chat(props: { apiKeyApp: string }) {
+export default function Chat() {
   const [inputCode, setInputCode] = useState<string>('');
   const [chatHistory, setChatHistory] = useState<
     { user: string; bot: string }[]
@@ -45,10 +44,23 @@ export default function Chat(props: { apiKeyApp: string }) {
     const query = inputCode;
 
     try {
-      const response = await fetch(`./api/langApi?question=${query}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+      
+      const formData = new FormData();
+      formData.append("question", query);
+
+      if (file) {
+        formData.append("file", file); // Attach file if selected
+      }
+
+      const response = await fetch("./api/langApi", {
+        method: "POST",
+        body: formData, // Send FormData
       });
+
+      // const response = await fetch(`./api/langApi?question=${query}`, {
+      //   method: 'GET',
+      //   headers: { 'Content-Type': 'application/json' },
+      // });
 
       if (!response.ok) {
         alert('Something went wrong. Try again.');
